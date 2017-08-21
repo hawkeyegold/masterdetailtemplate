@@ -7,8 +7,8 @@ import {
     TouchableHighlight,
     View, ViewStyle
 } from 'react-native';
-import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/Ionicons'
+import uuid from 'uuid';
 
 import { observer, inject } from 'mobx-react/native';
 
@@ -47,6 +47,12 @@ const styles = StyleSheet.create({
     onePaneHeaderBackButton: {
         color: 'white',
         fontSize: 16,
+        fontWeight: 'bold'
+    } as TextStyle,
+
+    onePaneHeaderIcon: {
+        color: 'white',
+        fontSize: 20,
         fontWeight: 'bold'
     } as TextStyle,
 
@@ -136,7 +142,6 @@ export default class MasterDetail extends React.Component<MasterDetailProperties
             isLandscape: this.isLandscape()
         };
 
-        // Not in typings - see https://github.com/DefinitelyTyped/DefinitelyTyped/pull/18885
         Dimensions.addEventListener('change', () => {
             this.setState({ isLandscape: this.isLandscape() });
         });
@@ -169,9 +174,25 @@ export default class MasterDetail extends React.Component<MasterDetailProperties
      * Event Handler called when the user selects the specified item
      *
      * @param {Note} item the item that was selected
-     * @memberof MasterDetailTwoPane
+     * @memberof MasterDetail
      */
     onSelectItem(item: Note) {
+        this.props.noteStore.setActiveNote(item);
+    }
+
+    /**
+     * Event handler called when the user clicks on the Add Item button
+     * @memberof MasterDetail
+     */
+    onAddItem() {
+        let item = {
+            noteId: uuid.v4(),
+            title: '',
+            content: '',
+            createdAt: Date.now(),
+            updatedAt: 0
+        };
+        this.props.noteStore.saveNote(item);
         this.props.noteStore.setActiveNote(item);
     }
 
@@ -179,7 +200,7 @@ export default class MasterDetail extends React.Component<MasterDetailProperties
      * Event Handler called when the user deletes the specified item
      *
      * @param {Note} item the item to be deleted
-     * @memberof MasterDetailTwoPane
+     * @memberof MasterDetail
      */
     onDeleteItem(item: Note) {
         this.props.noteStore.deleteNote(item);
@@ -240,6 +261,11 @@ export default class MasterDetail extends React.Component<MasterDetailProperties
                             <View style={styles.onePaneHeaderTitleContainer}>
                                 <Text style={styles.onePaneHeaderTitle}>Notes</Text>
                             </View>
+                            <View style={styles.onePaneHeaderRightIconContainer}>
+                                <TouchableHighlight onPress={() => this.onAddItem()}>
+                                    <Icon style={styles.onePaneHeaderIcon} name="ios-add"/>
+                                </TouchableHighlight>
+                            </View>
                         </View>
                         <NoteList
                             items={this.props.noteStore.notes}
@@ -283,6 +309,11 @@ export default class MasterDetail extends React.Component<MasterDetailProperties
                         <View style={styles.onePaneHeaderTitleContainer}>
                             <Text style={styles.onePaneHeaderTitle}>Notes</Text>
                         </View>
+                        <View style={styles.onePaneHeaderRightIconContainer}>
+                            <TouchableHighlight onPress={() => this.onAddItem()}>
+                                <Icon style={styles.onePaneHeaderIcon} name="ios-add"/>
+                            </TouchableHighlight>
+                        </View>
                     </View>
                     <View style={styles.onePaneContent}>
                         <NoteList
@@ -306,7 +337,7 @@ export default class MasterDetail extends React.Component<MasterDetailProperties
                     <View style={styles.onePaneHeader}>
                         <View style={styles.onePaneHeaderLeftIconContainer}>
                             <TouchableHighlight onPress={() => this.onClearSelection()}>
-                                <Icon style={styles.onePaneHeaderBackButton} name="ios-arrow-back"/>
+                                <Icon style={styles.onePaneHeaderIcon} name="ios-arrow-back"/>
                             </TouchableHighlight>
                         </View>
                         <View style={styles.onePaneHeaderTitleContainer}>

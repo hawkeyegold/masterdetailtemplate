@@ -1,10 +1,17 @@
 import { observable } from 'mobx';
 import Note from '../models/Note';
-import uuid from 'uuid';
+import localStorage from './LocalStorage';
 
 export class NoteStore {
     @observable notes: Note[] = [];
     @observable activeNoteId: string|null = null;
+
+    initializeNotes(notes: Note[]) {
+        if (this.notes.length > 0) {
+            this.notes.splice(0, this.notes.length);
+        }
+        this.notes.push(...notes);
+    }
 
     saveNote(note: Note) {
         console.log(`NoteStore:saveNote(${note.noteId})`);
@@ -14,6 +21,7 @@ export class NoteStore {
         } else {
             this.notes[idx] = note;
         }
+        localStorage.setItem(note);
     }
 
     deleteNote(note: Note) {
@@ -23,6 +31,7 @@ export class NoteStore {
             throw new Error(`Note ${note.noteId} not found`);
         } else {
             this.notes.splice(idx, 1);
+            localStorage.deleteItem(note.noteId);
             if (note.noteId === this.activeNoteId) {
                 this.activeNoteId = null;
             }
@@ -51,21 +60,6 @@ export class NoteStore {
 }
 
 const observableNoteStore = new NoteStore();
-
-const newNote = (title: string, content: string) => {
-    const note = {
-        noteId: uuid.v4(),
-        title: title,
-        content: content,
-        updatedAt: Date.now(),
-        createdAt: Date.now()
-    };
-    observableNoteStore.saveNote(note);
-}
-
-newNote('First Note', 'ff1');
-newNote('2nd Note', 'ff1');
-newNote('3rd Note', 'ff1');
-newNote('4th Note', 'ff1');
+localStorage.getAllItems().then(items => observableNoteStore.initializeNotes(items));
 
 export default observableNoteStore;
