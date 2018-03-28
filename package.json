@@ -12,7 +12,7 @@
 		"mobx-react": "^4.2.2",
 		"react": "16.0.0-alpha.12",
 		"react-native": "0.47.1",
-		"react-native-swipeout": "adrianhall/react-native-swipeout#types",
+		"react-native-swipeout": "^2.3.3",
 		"uuid": "^3.1.0"
 	},
 	"devDependencies": {
